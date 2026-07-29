@@ -12,6 +12,13 @@ using DevFlow.Infrastructure.Repositories.Tarefas;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Hospedagens como o Render informam a porta via variável de ambiente PORT.
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -62,11 +69,14 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
 }
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors("DevFlowCors");
 app.UseAuthentication();
