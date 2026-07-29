@@ -1,0 +1,44 @@
+<div class="my-tasks">
+  <header class="my-tasks__header">
+    <h1>Minhas tarefas</h1>
+    <p>Todas as tarefas de todos os seus projetos, num só lugar.</p>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="column__empty">{{ errorMessage() }}</p>
+  }
+
+  @if (isLoading()) {
+    <p class="column__empty">Carregando tarefas...</p>
+  } @else if (!tasks().length) {
+    <p class="column__empty">Nenhuma tarefa por aqui ainda.</p>
+  } @else {
+    <section class="board">
+      @for (column of taskColumns(); track column.status) {
+        <div class="column">
+          <header class="column__header">
+            <span class="column__dot" [class]="column.className"></span>
+            <h2 class="column__title">{{ column.label }}</h2>
+            <span class="column__count">{{ column.tasks.length }}</span>
+          </header>
+
+          @if (column.tasks.length) {
+            <div class="column__list">
+              @for (task of column.tasks; track task.id) {
+                <a class="task-card" [routerLink]="['/projects', task.projectId]">
+                  <div class="task-card__top">
+                    <span class="task-card__title">{{ task.title }}</span>
+                    <span class="avatar">{{ task.assigneeInitials }}</span>
+                  </div>
+                  <span class="task-card__project">{{ projectName(task.projectId) }}</span>
+                </a>
+              }
+            </div>
+          } @else {
+            <p class="column__empty">Sem tarefas por aqui.</p>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

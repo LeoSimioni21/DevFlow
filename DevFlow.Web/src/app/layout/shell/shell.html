@@ -1,0 +1,96 @@
+<div class="shell">
+  <aside class="sidebar">
+    <nav class="sidebar__nav">
+      <a
+        class="sidebar__icon"
+        routerLink="/projects"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        aria-label="Início"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 11.5 12 4l9 7.5" />
+          <path d="M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9" />
+        </svg>
+      </a>
+
+      <a class="sidebar__icon" routerLink="/projetos" routerLinkActive="is-active" aria-label="Projetos (tabela)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
+          <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
+          <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
+          <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
+        </svg>
+      </a>
+
+      <button type="button" class="sidebar__icon" aria-label="Pastas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3.5 6.5a1 1 0 0 1 1-1H9l2 2.2h8.5a1 1 0 0 1 1 1V17a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1v-10.5Z" />
+        </svg>
+      </button>
+
+      <a class="sidebar__icon" routerLink="/tarefas" routerLinkActive="is-active" aria-label="Minhas tarefas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 4.5h12a1 1 0 0 1 1 1V19a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5.5a1 1 0 0 1 1-1Z" />
+          <path d="M8.5 9.5h7M8.5 13h7M8.5 16.5h4.5" />
+        </svg>
+      </a>
+
+      <button type="button" class="sidebar__icon" aria-label="Equipe">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="8.5" r="3" />
+          <path d="M3.5 19.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" />
+          <circle cx="17" cy="9" r="2.3" />
+          <path d="M16 14.7c2.3.3 4 2 4 4.3" />
+        </svg>
+      </button>
+    </nav>
+
+    <a
+      class="sidebar__icon sidebar__settings"
+      routerLink="/configuracoes"
+      routerLinkActive="is-active"
+      aria-label="Configurações"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.51.5.94 1 1.15.32.14.51.42.51.76V11a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+      </svg>
+    </a>
+  </aside>
+
+  <div class="shell__content">
+    <header class="topbar">
+      <nav class="breadcrumb" aria-label="Trilha de navegação">
+        @for (item of breadcrumb.items(); track item.label; let last = $last) {
+          @if (item.link && !last) {
+            <a class="breadcrumb__link" [routerLink]="item.link">{{ item.label }}</a>
+          } @else {
+            <span class="breadcrumb__current">{{ item.label }}</span>
+          }
+          @if (!last) {
+            <span class="breadcrumb__sep">/</span>
+          }
+        }
+      </nav>
+
+      <div class="topbar__user">
+        @if (currentUser(); as user) {
+          <span class="avatar">{{ user.initials }}</span>
+          <span class="topbar__name">{{ user.name }}</span>
+        }
+        <button type="button" class="topbar__logout" aria-label="Sair" title="Sair" (click)="logout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <path d="M16 17l5-5-5-5" />
+            <path d="M21 12H9" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="shell__main">
+      <router-outlet />
+    </main>
+  </div>
+</div>

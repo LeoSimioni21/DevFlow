@@ -1,0 +1,193 @@
+@if (isLoading()) {
+  <div class="project-detail">
+    <p class="column__empty">Carregando projeto...</p>
+  </div>
+} @else if (project(); as project) {
+  <div class="project-detail">
+    <a class="back-link" routerLink="/projects">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+      Voltar aos projetos
+    </a>
+
+    <header class="project-header">
+      <div class="project-header__info">
+        <app-project-icon [type]="project.icon" />
+        <div>
+          <h1>{{ project.name }}</h1>
+          <p>{{ project.description }}</p>
+        </div>
+      </div>
+      <span class="badge" [class]="status()?.className">{{ status()?.label }}</span>
+    </header>
+
+    <div class="project-progress">
+      <div class="project-progress__track">
+        <div
+          class="project-progress__fill"
+          [class]="status()?.className"
+          [style.width.%]="project.progress"
+        ></div>
+      </div>
+      <div class="project-progress__row">
+        <span>{{ project.progress }}% concluído</span>
+        <span>{{ project.hasDeadline ? 'Prazo ' + project.deadline : 'Sem prazo' }}</span>
+        <span>{{ project.tasksCount }} tarefas</span>
+      </div>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="column__empty">{{ errorMessage() }}</p>
+    }
+
+    <div class="board-header">
+      <h2>Tarefas</h2>
+      <button type="button" class="btn-primary" (click)="openCreateTaskForm()">
+        <span class="btn-primary__plus">+</span>
+        Nova tarefa
+      </button>
+    </div>
+
+    <section class="board">
+      @for (column of taskColumns(); track column.status) {
+        <div class="column">
+          <header class="column__header">
+            <span class="column__dot" [class]="column.className"></span>
+            <h2 class="column__title">{{ column.label }}</h2>
+            <span class="column__count">{{ column.tasks.length }}</span>
+          </header>
+
+          @if (column.tasks.length) {
+            <div class="column__list">
+              @for (task of column.tasks; track task.id) {
+                <button type="button" class="task-card" (click)="openTask(task)">
+                  <div class="task-card__top">
+                    <span class="task-card__title">{{ task.title }}</span>
+                    <span class="avatar">{{ task.assigneeInitials }}</span>
+                  </div>
+                  <div class="task-card__bottom">
+                    <span class="badge" [class]="column.className">{{ column.label }}</span>
+                    <span class="task-card__updated">Atualizado {{ formatRelative(task.updatedAt) }}</span>
+                  </div>
+                </button>
+              }
+            </div>
+          } @else {
+            <p class="column__empty">Sem tarefas por aqui.</p>
+          }
+        </div>
+      }
+    </section>
+  </div>
+
+  @if (selectedTask(); as task) {
+    <div class="modal-backdrop" (click)="closeTask()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <header class="modal__header">
+          <h2 class="modal__title">Editar tarefa</h2>
+          <button type="button" class="modal__close" aria-label="Fechar" (click)="closeTask()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </header>
+
+        <form class="modal__form" [formGroup]="taskForm" (ngSubmit)="submitTaskForm()">
+          <label class="field">
+            <span class="field__label">Título</span>
+            <input class="field__input" type="text" formControlName="title" />
+            @if (taskForm.controls.title.invalid && taskForm.controls.title.touched) {
+              <span class="field__error">Informe um título.</span>
+            }
+          </label>
+
+          <label class="field">
+            <span class="field__label">Descrição</span>
+            <textarea class="field__input" formControlName="description"></textarea>
+            @if (taskForm.controls.description.invalid && taskForm.controls.description.touched) {
+              <span class="field__error">Informe uma descrição.</span>
+            }
+          </label>
+
+          <label class="field">
+            <span class="field__label">Status</span>
+            <select class="field__input" formControlName="status">
+              @for (option of taskStatusOptions; track option.value) {
+                <option [ngValue]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+
+          <dl class="modal__meta">
+            <div>
+              <dt>Criado em</dt>
+              <dd>{{ formatDateTime(task.createdAt) }}</dd>
+            </div>
+            <div>
+              <dt>Última atualização</dt>
+              <dd>{{ formatDateTime(task.updatedAt) }}</dd>
+            </div>
+          </dl>
+
+          <button type="submit" class="btn-submit">Salvar alterações</button>
+          <button type="button" class="btn-danger" (click)="deleteSelectedTask()">Excluir tarefa</button>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (isCreateTaskOpen()) {
+    <div class="modal-backdrop" (click)="closeCreateTaskForm()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <header class="modal__header">
+          <h2 class="modal__title">Nova tarefa</h2>
+          <button type="button" class="modal__close" aria-label="Fechar" (click)="closeCreateTaskForm()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </header>
+
+        <form class="modal__form" [formGroup]="createTaskForm" (ngSubmit)="submitCreateTaskForm()">
+          <label class="field">
+            <span class="field__label">Título</span>
+            <input class="field__input" type="text" formControlName="title" placeholder="Ex: Corrigir bug no login" />
+            @if (createTaskForm.controls.title.invalid && createTaskForm.controls.title.touched) {
+              <span class="field__error">Informe um título.</span>
+            }
+          </label>
+
+          <label class="field">
+            <span class="field__label">Descrição</span>
+            <textarea class="field__input" formControlName="description" placeholder="Detalhe o que precisa ser feito"></textarea>
+            @if (createTaskForm.controls.description.invalid && createTaskForm.controls.description.touched) {
+              <span class="field__error">Informe uma descrição.</span>
+            }
+          </label>
+
+          <label class="field">
+            <span class="field__label">Status</span>
+            <select class="field__input" formControlName="status">
+              @for (option of taskStatusOptions; track option.value) {
+                <option [ngValue]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+
+          <button type="submit" class="btn-submit">Criar tarefa</button>
+        </form>
+      </div>
+    </div>
+  }
+} @else {
+  <div class="project-detail">
+    <a class="back-link" routerLink="/projects">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+      Voltar aos projetos
+    </a>
+    <p class="column__empty">{{ errorMessage() ?? 'Projeto não encontrado.' }}</p>
+  </div>
+}

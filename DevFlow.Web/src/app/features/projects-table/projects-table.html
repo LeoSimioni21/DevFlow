@@ -1,0 +1,51 @@
+<div class="projects-table">
+  <header class="projects-table__header">
+    <h1>Projetos</h1>
+    <p>Visão em tabela de todos os projetos.</p>
+  </header>
+
+  @if (isLoading()) {
+    <p class="projects-table__empty">Carregando projetos...</p>
+  } @else if (!projects().length) {
+    <p class="projects-table__empty">Nenhum projeto ainda.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Status</th>
+            <th>Progresso</th>
+            <th>Prazo</th>
+            <th>Tarefas</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (project of projects(); track project.id) {
+            <tr class="table__row" [routerLink]="['/projects', project.id]">
+              <td>
+                <span class="table__project-name">{{ project.name }}</span>
+                <span class="table__project-description">{{ project.description }}</span>
+              </td>
+              <td>
+                <span class="badge" [class]="status(project.status).className">{{ status(project.status).label }}</span>
+              </td>
+              <td>
+                <div class="table__progress-track">
+                  <div
+                    class="table__progress-fill"
+                    [class]="status(project.status).className"
+                    [style.width.%]="project.progress"
+                  ></div>
+                </div>
+                <span class="table__progress-label">{{ project.progress }}%</span>
+              </td>
+              <td>{{ project.hasDeadline ? project.deadline : 'Sem prazo' }}</td>
+              <td>{{ project.tasksCount }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

@@ -1,0 +1,37 @@
+<a class="card" [routerLink]="['/projects', project().id]">
+  <header class="card__header">
+    <div>
+      <h3 class="card__title">{{ project().name }}</h3>
+      <p class="card__description">{{ project().description }}</p>
+    </div>
+    <div class="card__actions">
+      <app-project-icon [type]="project().icon" />
+      <button type="button" class="card__delete" aria-label="Excluir projeto" title="Excluir projeto" (click)="onDeleteClick($event)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h16" />
+          <path d="M9 7V4.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V7" />
+          <path d="M6 7l1 12.5a1.5 1.5 0 0 0 1.5 1.4h7a1.5 1.5 0 0 0 1.5-1.4L18 7" />
+          <path d="M10 11v6M14 11v6" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="card__progress-track">
+    <div
+      class="card__progress-fill"
+      [class]="status().className"
+      [style.width.%]="project().progress"
+    ></div>
+  </div>
+
+  <div class="card__row">
+    <span class="card__progress-label">{{ project().progress }}% concluído</span>
+    <span class="card__deadline">{{ project().hasDeadline ? 'Prazo ' + project().deadline : 'Sem prazo' }}</span>
+  </div>
+
+  <div class="card__row">
+    <span class="badge" [class]="status().className">{{ status().label }}</span>
+    <span class="card__meta">{{ project().tasksCount }} tarefas</span>
+  </div>
+</a>

@@ -1,0 +1,60 @@
+<div class="settings">
+  <header class="settings__header">
+    <h1>Configurações</h1>
+    <p>Gerencie as informações da sua conta.</p>
+  </header>
+
+  <section class="panel settings__panel">
+    <h2 class="panel__title">Aparência</h2>
+
+    <div class="settings__toggle-row">
+      <div>
+        <span class="settings__toggle-label">Tema claro</span>
+        <p class="settings__toggle-hint">Alterna entre o tema escuro (padrão) e o tema claro.</p>
+      </div>
+      <button
+        type="button"
+        class="switch"
+        role="switch"
+        [attr.aria-checked]="themeService.theme() === 'light'"
+        [class.is-on]="themeService.theme() === 'light'"
+        (click)="themeService.toggle()"
+      >
+        <span class="switch__thumb"></span>
+      </button>
+    </div>
+  </section>
+
+  <section class="panel settings__panel">
+    <h2 class="panel__title">Perfil</h2>
+
+    <form class="settings__form" [formGroup]="form" (ngSubmit)="submit()">
+      <label class="field">
+        <span class="field__label">Nome</span>
+        <input class="field__input" type="text" formControlName="name" />
+        @if (form.controls.name.invalid && form.controls.name.touched) {
+          <span class="field__error">Informe um nome.</span>
+        }
+      </label>
+
+      <label class="field">
+        <span class="field__label">E-mail</span>
+        <input class="field__input" type="email" formControlName="email" />
+        @if (form.controls.email.invalid && form.controls.email.touched) {
+          <span class="field__error">Informe um e-mail válido.</span>
+        }
+      </label>
+
+      @if (errorMessage()) {
+        <p class="field__error">{{ errorMessage() }}</p>
+      }
+      @if (successMessage()) {
+        <p class="settings__success">{{ successMessage() }}</p>
+      }
+
+      <button type="submit" class="btn-submit" [disabled]="isSaving()">
+        {{ isSaving() ? 'Salvando...' : 'Salvar alterações' }}
+      </button>
+    </form>
+  </section>
+</div>

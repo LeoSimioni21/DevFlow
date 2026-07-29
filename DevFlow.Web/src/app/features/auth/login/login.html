@@ -1,0 +1,56 @@
+<div class="login">
+  <div class="login__card">
+    <div class="login__brand">
+      <span class="login__logo">DF</span>
+      <span class="login__brand-name">DevFlow</span>
+    </div>
+
+    <h1 class="login__title">Entrar na sua conta</h1>
+    <p class="login__subtitle">Acompanhe projetos e tarefas em um só lugar.</p>
+
+    <form class="login__form" [formGroup]="form" (ngSubmit)="submit()">
+      <label class="field">
+        <span class="field__label">E-mail</span>
+        <input
+          class="field__input"
+          type="email"
+          formControlName="email"
+          placeholder="seu.email@empresa.com"
+          autocomplete="email"
+        />
+        @if (form.controls.email.invalid && form.controls.email.touched) {
+          <span class="field__error">Informe um e-mail válido.</span>
+        }
+      </label>
+
+      <label class="field">
+        <span class="field__label">Senha</span>
+        <input
+          class="field__input"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+        />
+        @if (form.controls.password.invalid && form.controls.password.touched) {
+          <span class="field__error">A senha deve ter no mínimo 6 caracteres.</span>
+        }
+      </label>
+
+      <div class="login__row">
+        <label class="checkbox">
+          <input type="checkbox" formControlName="rememberMe" />
+          <span>Lembrar usuário</span>
+        </label>
+      </div>
+
+      @if (errorMessage()) {
+        <p class="field__error">{{ errorMessage() }}</p>
+      }
+
+      <button type="submit" class="btn-submit" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Entrando...' : 'Entrar' }}
+      </button>
+    </form>
+  </div>
+</div>

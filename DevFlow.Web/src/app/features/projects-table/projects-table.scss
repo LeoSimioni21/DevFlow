@@ -1,0 +1,115 @@
+.projects-table {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.projects-table__header {
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-top: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+}
+
+.projects-table__empty {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+
+  th {
+    text-align: left;
+    padding: 0.85rem 1.2rem;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  td {
+    padding: 0.9rem 1.2rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+  }
+}
+
+.table__row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--bg-surface-hover);
+  }
+
+  &:last-child td {
+    border-bottom: none;
+  }
+}
+
+.table__project-name {
+  display: block;
+  font-weight: 600;
+}
+
+.table__project-description {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.table__progress-track {
+  width: 100px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--bg-surface-hover);
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.table__progress-fill {
+  height: 100%;
+  border-radius: 999px;
+
+  &.success {
+    background: var(--status-success);
+  }
+  &.warning {
+    background: var(--status-warning);
+  }
+  &.danger {
+    background: var(--status-danger);
+  }
+}
+
+.table__progress-label {
+  margin-left: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}

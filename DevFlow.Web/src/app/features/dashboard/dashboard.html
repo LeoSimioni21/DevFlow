@@ -1,0 +1,96 @@
+<div class="dashboard">
+  <header class="dashboard__header">
+    <h1>
+      Meus projetos
+      <span class="dashboard__count">({{ activeProjectsCount() }} ativos)</span>
+    </h1>
+    <button type="button" class="btn-primary" (click)="openCreateForm()">
+      <span class="btn-primary__plus">+</span>
+      Novo projeto
+    </button>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="dashboard__error">{{ errorMessage() }}</p>
+  }
+
+  @if (isLoading()) {
+    <p class="dashboard__empty">Carregando projetos...</p>
+  } @else if (!projects().length) {
+    <p class="dashboard__empty">Nenhum projeto ainda. Crie o primeiro com "Novo projeto".</p>
+  } @else {
+    <section class="dashboard__grid">
+      @for (project of projects(); track project.id) {
+        <app-project-card [project]="project" (deleteRequested)="deleteProject($event)" />
+      }
+    </section>
+  }
+
+  <section class="dashboard__panels">
+    <article class="panel">
+      <h2 class="panel__title">Resumo rápido</h2>
+      <div class="panel__stats">
+        @for (stat of summary(); track stat.label) {
+          <div class="stat">
+            <span class="stat__value" [class]="stat.variant">{{ stat.value }}</span>
+            <span class="stat__label">{{ stat.label }}</span>
+          </div>
+        }
+      </div>
+    </article>
+
+    <article class="panel">
+      <h2 class="panel__title">Atividade recente</h2>
+      <p class="dashboard__empty">Nenhuma atividade registrada ainda.</p>
+    </article>
+  </section>
+</div>
+
+@if (isCreateOpen()) {
+  <div class="modal-backdrop" (click)="closeCreateForm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <header class="modal__header">
+        <h2 class="modal__title">Novo projeto</h2>
+        <button type="button" class="modal__close" aria-label="Fechar" (click)="closeCreateForm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+      </header>
+
+      <form class="modal__form" [formGroup]="createForm" (ngSubmit)="submitCreateForm()">
+        <label class="field">
+          <span class="field__label">Nome</span>
+          <input class="field__input" type="text" formControlName="name" placeholder="Ex: Portal do cliente" />
+          @if (createForm.controls.name.invalid && createForm.controls.name.touched) {
+            <span class="field__error">Informe um nome.</span>
+          }
+        </label>
+
+        <label class="field">
+          <span class="field__label">Descrição</span>
+          <textarea class="field__input" formControlName="description" placeholder="Do que se trata este projeto"></textarea>
+          @if (createForm.controls.description.invalid && createForm.controls.description.touched) {
+            <span class="field__error">Informe uma descrição.</span>
+          }
+        </label>
+
+        <label class="field">
+          <span class="field__label">Ícone</span>
+          <select class="field__input" formControlName="icon">
+            @for (option of iconOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="field__label">Prazo (opcional)</span>
+          <input class="field__input" type="date" formControlName="deadline" />
+        </label>
+
+        <button type="submit" class="btn-submit">Criar projeto</button>
+      </form>
+    </div>
+  </div>
+}
