@@ -51,7 +51,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevFlowCors", policy =>
     {
-        policy.WithOrigins("http://localhost:4200") // URL do front-end Angular
+        policy.WithOrigins(
+                  "http://localhost:4200",       // Angular em dev
+                  "https://leosimioni21.github.io" // front publicado no GitHub Pages
+              )
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
