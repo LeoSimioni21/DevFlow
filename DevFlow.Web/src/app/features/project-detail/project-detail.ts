@@ -43,7 +43,12 @@ interface TaskColumn {
   label: string;
   className: string;
   tasks: Task[];
+  pageTasks: Task[];
+  page: number;
+  totalPages: number;
 }
+
+const PAGE_SIZE = 10;
 
 const PROJECT_STATUS_PRESENTATION: Record<ProjectStatus, StatusPresentation> = {
   'in-progress': { label: 'Em andamento', className: 'success' },
@@ -96,15 +101,36 @@ export class ProjectDetail {
 
   protected readonly tasks = computed(() => this.tasksStore.getTasks(this.id()));
 
+  private readonly pageByStatus = signal<Record<TaskStatus, number>>({
+    analise: 0,
+    'em-desenvolvimento': 0,
+    concluido: 0,
+  });
+
   protected readonly taskColumns = computed<TaskColumn[]>(() => {
     const tasks = this.tasks();
-    return TASK_COLUMN_ORDER.map((status) => ({
-      status,
-      label: TASK_STATUS_PRESENTATION[status].label,
-      className: TASK_STATUS_PRESENTATION[status].className,
-      tasks: tasks.filter((task) => task.status === status),
-    }));
+    const pages = this.pageByStatus();
+
+    return TASK_COLUMN_ORDER.map((status) => {
+      const columnTasks = tasks.filter((task) => task.status === status);
+      const totalPages = Math.max(1, Math.ceil(columnTasks.length / PAGE_SIZE));
+      const page = Math.min(pages[status], totalPages - 1);
+
+      return {
+        status,
+        label: TASK_STATUS_PRESENTATION[status].label,
+        className: TASK_STATUS_PRESENTATION[status].className,
+        tasks: columnTasks,
+        pageTasks: columnTasks.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE),
+        page,
+        totalPages,
+      };
+    });
   });
+
+  protected changePage(status: TaskStatus, delta: number): void {
+    this.pageByStatus.update((pages) => ({ ...pages, [status]: Math.max(0, pages[status] + delta) }));
+  }
 
   protected readonly taskStatusOptions = TASK_COLUMN_ORDER.map((status) => ({
     value: status,

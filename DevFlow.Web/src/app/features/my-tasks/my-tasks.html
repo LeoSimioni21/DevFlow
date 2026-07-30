@@ -33,7 +33,7 @@
 
           @if (column.tasks.length) {
             <div class="column__list">
-              @for (task of column.tasks; track task.id) {
+              @for (task of column.pageTasks; track task.id) {
                 <a class="task-card" [routerLink]="['/projects', task.projectId]">
                   <div class="task-card__top">
                     <span class="task-card__title">{{ task.title }}</span>
@@ -46,6 +46,29 @@
                 </a>
               }
             </div>
+            @if (column.totalPages > 1) {
+              <div class="column__pager">
+                <button
+                  type="button"
+                  class="column__pager-btn"
+                  [disabled]="column.page === 0"
+                  (click)="changePage(column.status, -1)"
+                  aria-label="Página anterior"
+                >
+                  ‹
+                </button>
+                <span class="column__pager-label">Página {{ column.page + 1 }} de {{ column.totalPages }}</span>
+                <button
+                  type="button"
+                  class="column__pager-btn"
+                  [disabled]="column.page >= column.totalPages - 1"
+                  (click)="changePage(column.status, 1)"
+                  aria-label="Próxima página"
+                >
+                  ›
+                </button>
+              </div>
+            }
           } @else {
             <p class="column__empty">Sem tarefas por aqui.</p>
           }
