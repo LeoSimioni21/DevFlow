@@ -78,6 +78,21 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
+// Sem isso, uma exceção não tratada gera um 500 sem cabeçalho de CORS,
+// e o navegador reporta "bloqueado por CORS" escondendo o erro real.
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var feature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+        app.Logger.LogError(feature?.Error, "Erro não tratado em {Path}", context.Request.Path);
+
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsJsonAsync(new { erro = "Ocorreu um erro inesperado no servidor." });
+    });
+});
+
 app.UseCors("DevFlowCors");
 app.UseAuthentication();
 app.UseAuthorization();

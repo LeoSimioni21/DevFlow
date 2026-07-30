@@ -26,7 +26,7 @@ public class CreateProjetoCommandHandler : IRequestHandler<CreateProjetoCommand,
             Nome = dto.Nome,
             Descricao = dto.Descricao,
             Icone = dto.Icone,
-            PrazoEm = dto.PrazoEm,
+            PrazoEm = dto.PrazoEm.HasValue ? DateTime.SpecifyKind(dto.PrazoEm.Value, DateTimeKind.Utc) : null,
             Status = DevFlow.Domain.Enums.StatusProjeto.EmDia,
             CriadoEm = DateTime.UtcNow,
             ResponsavelId = dto.ResponsavelId
