@@ -26,17 +26,6 @@ public class GetTarefaByIdQueryHandler : IRequestHandler<GetTarefaByIdQuery, Tar
             ? (await _usuarioRepository.GetByIdAsync(tarefa.ResponsavelId.Value))?.Nome
             : null;
 
-        return new TarefaResponse(
-            tarefa.Id,
-            tarefa.Titulo,
-            tarefa.Descricao,
-            tarefa.Nivel.ToString(),
-            tarefa.Status.ToString(),
-            tarefa.ProjetoId,
-            tarefa.ResponsavelId,
-            responsavelNome,
-            tarefa.CriadoEm,
-            tarefa.AtualizadoEm
-        );
+        return tarefa.ToResponse(responsavelNome);
     }
 }

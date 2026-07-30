@@ -89,7 +89,6 @@ public class AppDbContext : DbContext
             entity.Property(t => t.Nivel)
                 .HasConversion<string>()
                 .HasMaxLength(20)
-                .HasDefaultValue(DevFlow.Domain.Enums.NivelTarefa.Media)
                 .IsRequired();
 
             entity.Property(t => t.Status)
@@ -97,6 +96,18 @@ public class AppDbContext : DbContext
                 .HasMaxLength(30)
                 .HasDefaultValue(DevFlow.Domain.Enums.StatusTarefa.AFazer)
                 .IsRequired();
+
+            entity.Property(t => t.Prioridade)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.Property(t => t.Codigo)
+                .HasMaxLength(6)
+                .IsRequired();
+
+            entity.HasIndex(t => t.Codigo)
+                .IsUnique();
 
             // Relacionamento: Tarefa -> Projeto
             entity.HasOne(t => t.Projeto)

@@ -19,9 +19,9 @@ public class TarefasController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<TarefaResponse>>> GetAll([FromQuery] int? projetoId)
+    public async Task<ActionResult<List<TarefaResponse>>> GetAll([FromQuery] int? projetoId, [FromQuery] string? codigo)
     {
-        var tarefas = await _mediator.Send(new GetTarefasQuery(projetoId));
+        var tarefas = await _mediator.Send(new GetTarefasQuery(projetoId, codigo));
         return Ok(tarefas);
     }
 

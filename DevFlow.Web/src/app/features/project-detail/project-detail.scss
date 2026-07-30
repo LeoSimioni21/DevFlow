@@ -202,13 +202,19 @@
 .task-card__bottom {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   font-size: 0.8rem;
+}
+
+.task-card__code {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
 }
 
 .task-card__updated {
   color: var(--text-secondary);
+  margin-left: auto;
 }
 
 .modal__meta {

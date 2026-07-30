@@ -8,6 +8,10 @@ public class Tarefa
     public string? Descricao { get; set; }
     public DevFlow.Domain.Enums.NivelTarefa Nivel { get; set; }
     public DevFlow.Domain.Enums.StatusTarefa Status { get; set; }
+    public DevFlow.Domain.Enums.PrioridadeTarefa Prioridade { get; set; }
+    public string Codigo { get; set; } = string.Empty;
+    public DateTime? HoraInicio { get; set; }
+    public DateTime? HoraFim { get; set; }
     public DateTime CriadoEm { get; set; } = DateTime.UtcNow;
     public DateTime AtualizadoEm { get; set; } = DateTime.UtcNow;
 

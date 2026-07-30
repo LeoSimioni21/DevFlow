@@ -1,0 +1,103 @@
+<div class="dashboard-analytics">
+  <header class="dashboard-analytics__header">
+    <h1>Dashboard</h1>
+    <p>Horas trabalhadas, prioridades e pontos críticos de todas as tarefas.</p>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="panel__empty">{{ errorMessage() }}</p>
+  }
+
+  @if (isLoading()) {
+    <p class="panel__empty">Carregando dashboard...</p>
+  } @else if (data(); as data) {
+    <section class="stats-grid">
+      <article class="panel stat-card">
+        <span class="stat-card__value">{{ data.totalTarefas }}</span>
+        <span class="stat-card__label">Tarefas no total</span>
+      </article>
+      <article class="panel stat-card">
+        <span class="stat-card__value">{{ data.totalHorasTrabalhadas | number: '1.1-1' }}h</span>
+        <span class="stat-card__label">Horas trabalhadas registradas</span>
+      </article>
+      <article class="panel stat-card">
+        <span class="stat-card__value">{{ data.mediaHorasPorTarefa | number: '1.1-1' }}h</span>
+        <span class="stat-card__label">Média de horas por tarefa</span>
+      </article>
+    </section>
+
+    <section class="panels-grid">
+      <article class="panel">
+        <h2 class="panel__title">Tarefas por status</h2>
+        @if (statusItems().length) {
+          <div class="percent-list">
+            @for (item of statusItems(); track item.chave) {
+              <div class="percent-row">
+                <div class="percent-row__label">
+                  <span class="badge" [class]="item.presentation.className">{{ item.presentation.label }}</span>
+                  <span class="percent-row__count">{{ item.quantidade }}</span>
+                </div>
+                <div class="percent-row__track">
+                  <div class="percent-row__fill" [class]="item.presentation.className" [style.width.%]="item.percentual"></div>
+                </div>
+                <span class="percent-row__value">{{ item.percentual | number: '1.0-0' }}%</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="panel__empty">Sem tarefas ainda.</p>
+        }
+      </article>
+
+      <article class="panel">
+        <h2 class="panel__title">Tarefas por prioridade</h2>
+        @if (prioridadeItems().length) {
+          <div class="percent-list">
+            @for (item of prioridadeItems(); track item.chave) {
+              <div class="percent-row">
+                <div class="percent-row__label">
+                  <span class="badge" [class]="item.presentation.className">{{ item.presentation.label }}</span>
+                  <span class="percent-row__count">{{ item.quantidade }}</span>
+                </div>
+                <div class="percent-row__track">
+                  <div class="percent-row__fill" [class]="item.presentation.className" [style.width.%]="item.percentual"></div>
+                </div>
+                <span class="percent-row__value">{{ item.percentual | number: '1.0-0' }}%</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="panel__empty">Sem tarefas ainda.</p>
+        }
+      </article>
+    </section>
+
+    <article class="panel">
+      <h2 class="panel__title">Pontos críticos</h2>
+      @if (pontosCriticos().length) {
+        <ul class="critical-list">
+          @for (ponto of pontosCriticos(); track $index) {
+            <li class="critical-item">
+              <span class="badge danger">{{ ponto.label }}</span>
+              <div class="critical-item__body">
+                <span class="critical-item__desc">{{ ponto.descricao }}</span>
+                <span class="critical-item__meta">
+                  @if (ponto.tarefaCodigo) {
+                    Tarefa #{{ ponto.tarefaCodigo }} ·
+                  }
+                  @if (ponto.projetoId) {
+                    <a [routerLink]="['/projects', ponto.projetoId]">{{ ponto.projetoNome }}</a>
+                  } @else {
+                    {{ ponto.projetoNome }}
+                  }
+                </span>
+              </div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="panel__empty">Nenhum ponto crítico no momento.</p>
+      }
+    </article>
+  }
+</div>

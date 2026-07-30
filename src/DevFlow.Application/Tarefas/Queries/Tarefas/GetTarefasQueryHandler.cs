@@ -22,22 +22,19 @@ public class GetTarefasQueryHandler : IRequestHandler<GetTarefasQuery, List<Tare
             ? await _tarefaRepository.GetTarefasByProjetoIdAsync(getTarefasQuery.ProjetoId.Value)
             : await _tarefaRepository.GetTarefasAsync();
 
+        if (!string.IsNullOrWhiteSpace(getTarefasQuery.Codigo))
+        {
+            tarefas = tarefas
+                .Where(tarefa => tarefa.Codigo.Contains(getTarefasQuery.Codigo, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
         var usuarios = await _usuarioRepository.GetAllAsync();
         var nomesPorId = usuarios.ToDictionary(u => u.Id, u => u.Nome);
 
         return tarefas
-            .Select(tarefa => new TarefaResponse(
-                tarefa.Id,
-                tarefa.Titulo,
-                tarefa.Descricao,
-                tarefa.Nivel.ToString(),
-                tarefa.Status.ToString(),
-                tarefa.ProjetoId,
-                tarefa.ResponsavelId,
-                tarefa.ResponsavelId.HasValue ? nomesPorId.GetValueOrDefault(tarefa.ResponsavelId.Value) : null,
-                tarefa.CriadoEm,
-                tarefa.AtualizadoEm
-            ))
+            .Select(tarefa => tarefa.ToResponse(
+                tarefa.ResponsavelId.HasValue ? nomesPorId.GetValueOrDefault(tarefa.ResponsavelId.Value) : null))
             .ToList();
     }
 }

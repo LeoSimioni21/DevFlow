@@ -30,6 +30,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/my-tasks/my-tasks').then((m) => m.MyTasks),
       },
       {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/dashboard-analytics/dashboard-analytics').then((m) => m.DashboardAnalytics),
+      },
+      {
         path: 'configuracoes',
         loadComponent: () => import('./features/settings/settings').then((m) => m.Settings),
       },

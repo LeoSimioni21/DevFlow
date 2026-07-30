@@ -34,6 +34,10 @@ public class CreateTarefaCommandHandler : IRequestHandler<CreateTarefaCommand, T
             ProjetoId = createTarefaCommand.ProjetoId,
             ResponsavelId = dto.ResponsavelId,
             Status = dto.Status,
+            Prioridade = dto.Prioridade,
+            HoraInicio = dto.HoraInicio,
+            HoraFim = dto.HoraFim,
+            Codigo = "PENDENTE",
             CriadoEm = agora,
             AtualizadoEm = agora
         };
@@ -41,21 +45,14 @@ public class CreateTarefaCommandHandler : IRequestHandler<CreateTarefaCommand, T
         await _tarefaRepository.AddAsync(tarefa);
         await _tarefaRepository.SaveChangesAsync();
 
+        // O código só pode ser gerado depois que o Id sequencial existe.
+        tarefa.Codigo = tarefa.Id.ToString("D6");
+        await _tarefaRepository.SaveChangesAsync();
+
         var responsavelNome = tarefa.ResponsavelId.HasValue
             ? (await _usuarioRepository.GetByIdAsync(tarefa.ResponsavelId.Value))?.Nome
             : null;
 
-        return new TarefaResponse(
-            tarefa.Id,
-            tarefa.Titulo,
-            tarefa.Descricao,
-            tarefa.Nivel.ToString(),
-            tarefa.Status.ToString(),
-            tarefa.ProjetoId,
-            tarefa.ResponsavelId,
-            responsavelNome,
-            tarefa.CriadoEm,
-            tarefa.AtualizadoEm
-        );
+        return tarefa.ToResponse(responsavelNome);
     }
 }

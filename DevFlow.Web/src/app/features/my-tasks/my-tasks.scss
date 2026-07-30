@@ -119,3 +119,20 @@
   font-size: 0.78rem;
   color: var(--text-tertiary);
 }
+
+.task-card__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.task-card__code {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.my-tasks__search {
+  max-width: 280px;
+}

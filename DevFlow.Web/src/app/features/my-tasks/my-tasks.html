@@ -4,6 +4,13 @@
     <p>Todas as tarefas de todos os seus projetos, num só lugar.</p>
   </header>
 
+  @if (tasks().length) {
+    <label class="field my-tasks__search">
+      <span class="field__label">Buscar por código</span>
+      <input class="field__input" type="text" placeholder="Ex: 000123" [(ngModel)]="searchCode" />
+    </label>
+  }
+
   @if (errorMessage()) {
     <p class="column__empty">{{ errorMessage() }}</p>
   }
@@ -12,6 +19,8 @@
     <p class="column__empty">Carregando tarefas...</p>
   } @else if (!tasks().length) {
     <p class="column__empty">Nenhuma tarefa por aqui ainda.</p>
+  } @else if (!filteredTasks().length) {
+    <p class="column__empty">Nenhuma tarefa encontrada com esse código.</p>
   } @else {
     <section class="board">
       @for (column of taskColumns(); track column.status) {
@@ -30,7 +39,10 @@
                     <span class="task-card__title">{{ task.title }}</span>
                     <span class="avatar">{{ task.assigneeInitials }}</span>
                   </div>
-                  <span class="task-card__project">{{ projectName(task.projectId) }}</span>
+                  <div class="task-card__bottom">
+                    <span class="task-card__project">{{ projectName(task.projectId) }}</span>
+                    <span class="task-card__code">#{{ task.code }}</span>
+                  </div>
                 </a>
               }
             </div>

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ProjectsStore } from '../../core/data/projects.store';
 import { TarefasService } from '../../core/data/tarefas.service';
@@ -27,7 +28,7 @@ const TASK_COLUMN_ORDER: TaskStatus[] = ['analise', 'em-desenvolvimento', 'concl
 
 @Component({
   selector: 'app-my-tasks',
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   templateUrl: './my-tasks.html',
   styleUrl: './my-tasks.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,6 +41,7 @@ export class MyTasks {
   protected readonly isLoading = signal(true);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly tasks = signal<Task[]>([]);
+  protected readonly searchCode = signal('');
 
   protected readonly projectNameById = computed(() => {
     const map = new Map<string, string>();
@@ -49,8 +51,14 @@ export class MyTasks {
     return map;
   });
 
-  protected readonly taskColumns = computed<TaskColumn[]>(() => {
+  protected readonly filteredTasks = computed(() => {
+    const term = this.searchCode().trim().toLowerCase();
     const tasks = this.tasks();
+    return term ? tasks.filter((task) => task.code.toLowerCase().includes(term)) : tasks;
+  });
+
+  protected readonly taskColumns = computed<TaskColumn[]>(() => {
+    const tasks = this.filteredTasks();
     return TASK_COLUMN_ORDER.map((status) => ({
       status,
       label: TASK_STATUS_PRESENTATION[status].label,

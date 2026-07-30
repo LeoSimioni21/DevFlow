@@ -1,19 +1,41 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { ProjetosService } from '../../core/data/projetos.service';
-import { STATUS_TO_API } from '../../core/data/tarefas.service';
+import { PRIORITY_TO_API, STATUS_TO_API } from '../../core/data/tarefas.service';
 import { TasksStore } from '../../core/data/tasks.store';
 import { BreadcrumbService } from '../../core/layout/breadcrumb.service';
 import { Project, ProjectStatus } from '../../shared/models/project.model';
-import { Task, TaskStatus } from '../../shared/models/task.model';
+import { Task, TaskPriority, TaskStatus } from '../../shared/models/task.model';
 import { ProjectIcon } from '../dashboard/project-icon/project-icon';
 
 interface StatusPresentation {
   label: string;
   className: string;
+}
+
+const TASK_PRIORITY_PRESENTATION: Record<TaskPriority, StatusPresentation> = {
+  baixa: { label: 'Baixa', className: 'neutral' },
+  media: { label: 'Média', className: 'warning' },
+  alta: { label: 'Alta', className: 'danger' },
+};
+
+const TASK_PRIORITY_ORDER: TaskPriority[] = ['baixa', 'media', 'alta'];
+
+function toDateTimeLocal(value: string | null): string {
+  if (!value) {
+    return '';
+  }
+  const date = new Date(value);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function fromDateTimeLocal(value: string): string | null {
+  return value ? new Date(value).toISOString() : null;
 }
 
 interface TaskColumn {
@@ -47,7 +69,7 @@ const DATE_TIME_FORMATTER = new Intl.DateTimeFormat('pt-BR', {
 
 @Component({
   selector: 'app-project-detail',
-  imports: [RouterLink, ProjectIcon, ReactiveFormsModule],
+  imports: [RouterLink, ProjectIcon, ReactiveFormsModule, DecimalPipe],
   templateUrl: './project-detail.html',
   styleUrl: './project-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -89,6 +111,11 @@ export class ProjectDetail {
     label: TASK_STATUS_PRESENTATION[status].label,
   }));
 
+  protected readonly taskPriorityOptions = TASK_PRIORITY_ORDER.map((priority) => ({
+    value: priority,
+    label: TASK_PRIORITY_PRESENTATION[priority].label,
+  }));
+
   protected readonly selectedTask = signal<Task | null>(null);
 
   protected readonly selectedTaskStatus = computed(() => {
@@ -96,10 +123,15 @@ export class ProjectDetail {
     return task ? TASK_STATUS_PRESENTATION[task.status] : undefined;
   });
 
+  protected readonly priorityPresentation = TASK_PRIORITY_PRESENTATION;
+
   protected readonly taskForm = this.formBuilder.nonNullable.group({
     title: ['', Validators.required],
     description: ['', Validators.required],
     status: ['analise' as TaskStatus, Validators.required],
+    priority: ['media' as TaskPriority, Validators.required],
+    startedAt: [''],
+    finishedAt: [''],
   });
 
   protected readonly isCreateTaskOpen = signal(false);
@@ -108,6 +140,9 @@ export class ProjectDetail {
     title: ['', Validators.required],
     description: ['', Validators.required],
     status: ['analise' as TaskStatus, Validators.required],
+    priority: ['media' as TaskPriority, Validators.required],
+    startedAt: [''],
+    finishedAt: [''],
   });
 
   constructor() {
@@ -142,7 +177,14 @@ export class ProjectDetail {
 
   protected openTask(task: Task): void {
     this.selectedTask.set(task);
-    this.taskForm.reset({ title: task.title, description: task.description, status: task.status });
+    this.taskForm.reset({
+      title: task.title,
+      description: task.description,
+      status: task.status,
+      priority: task.priority,
+      startedAt: toDateTimeLocal(task.startedAt),
+      finishedAt: toDateTimeLocal(task.finishedAt),
+    });
   }
 
   protected closeTask(): void {
@@ -156,7 +198,7 @@ export class ProjectDetail {
       return;
     }
 
-    const { title, description, status } = this.taskForm.getRawValue();
+    const { title, description, status, priority, startedAt, finishedAt } = this.taskForm.getRawValue();
 
     this.tasksStore
       .updateTask(this.id(), task.id, {
@@ -164,6 +206,9 @@ export class ProjectDetail {
         descricao: description || null,
         nivel: 1,
         status: STATUS_TO_API[status],
+        prioridade: PRIORITY_TO_API[priority],
+        horaInicio: fromDateTimeLocal(startedAt),
+        horaFim: fromDateTimeLocal(finishedAt),
         responsavelId: this.authService.currentUser()?.id ?? null,
       })
       .subscribe({
@@ -191,7 +236,14 @@ export class ProjectDetail {
   // ---------- Tarefas: criação ----------
 
   protected openCreateTaskForm(): void {
-    this.createTaskForm.reset({ title: '', description: '', status: 'analise' });
+    this.createTaskForm.reset({
+      title: '',
+      description: '',
+      status: 'analise',
+      priority: 'media',
+      startedAt: '',
+      finishedAt: '',
+    });
     this.isCreateTaskOpen.set(true);
   }
 
@@ -206,7 +258,7 @@ export class ProjectDetail {
     }
 
     const currentUser = this.authService.currentUser();
-    const { title, description, status } = this.createTaskForm.getRawValue();
+    const { title, description, status, priority, startedAt, finishedAt } = this.createTaskForm.getRawValue();
 
     this.tasksStore
       .addTask(this.id(), {
@@ -214,6 +266,9 @@ export class ProjectDetail {
         descricao: description || null,
         nivel: 1,
         status: STATUS_TO_API[status],
+        prioridade: PRIORITY_TO_API[priority],
+        horaInicio: fromDateTimeLocal(startedAt),
+        horaFim: fromDateTimeLocal(finishedAt),
         responsavelId: currentUser?.id ?? null,
       })
       .subscribe({

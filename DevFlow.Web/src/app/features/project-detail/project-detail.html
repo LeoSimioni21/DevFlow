@@ -68,6 +68,8 @@
                   </div>
                   <div class="task-card__bottom">
                     <span class="badge" [class]="column.className">{{ column.label }}</span>
+                    <span class="badge" [class]="priorityPresentation[task.priority].className">{{ priorityPresentation[task.priority].label }}</span>
+                    <span class="task-card__code">#{{ task.code }}</span>
                     <span class="task-card__updated">Atualizado {{ formatRelative(task.updatedAt) }}</span>
                   </div>
                 </button>
@@ -85,7 +87,7 @@
     <div class="modal-backdrop" (click)="closeTask()">
       <div class="modal" (click)="$event.stopPropagation()">
         <header class="modal__header">
-          <h2 class="modal__title">Editar tarefa</h2>
+          <h2 class="modal__title">Editar tarefa <span class="task-card__code">#{{ task.code }}</span></h2>
           <button type="button" class="modal__close" aria-label="Fechar" (click)="closeTask()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M6 6l12 12M18 6L6 18" />
@@ -119,6 +121,25 @@
             </select>
           </label>
 
+          <label class="field">
+            <span class="field__label">Prioridade</span>
+            <select class="field__input" formControlName="priority">
+              @for (option of taskPriorityOptions; track option.value) {
+                <option [ngValue]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Horário de início</span>
+            <input class="field__input" type="datetime-local" formControlName="startedAt" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Horário final</span>
+            <input class="field__input" type="datetime-local" formControlName="finishedAt" />
+          </label>
+
           <dl class="modal__meta">
             <div>
               <dt>Criado em</dt>
@@ -128,6 +149,12 @@
               <dt>Última atualização</dt>
               <dd>{{ formatDateTime(task.updatedAt) }}</dd>
             </div>
+            @if (task.hoursWorked !== null) {
+              <div>
+                <dt>Horas trabalhadas</dt>
+                <dd>{{ task.hoursWorked | number: '1.1-1' }}h</dd>
+              </div>
+            }
           </dl>
 
           <button type="submit" class="btn-submit">Salvar alterações</button>
@@ -173,6 +200,25 @@
                 <option [ngValue]="option.value">{{ option.label }}</option>
               }
             </select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Prioridade</span>
+            <select class="field__input" formControlName="priority">
+              @for (option of taskPriorityOptions; track option.value) {
+                <option [ngValue]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Horário de início</span>
+            <input class="field__input" type="datetime-local" formControlName="startedAt" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Horário final</span>
+            <input class="field__input" type="datetime-local" formControlName="finishedAt" />
           </label>
 
           <button type="submit" class="btn-submit">Criar tarefa</button>

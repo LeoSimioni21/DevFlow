@@ -31,6 +31,9 @@ public class UpdateTarefaCommandHandler : IRequestHandler<UpdateTarefaCommand, T
         tarefa.Descricao = dto.Descricao;
         tarefa.Nivel = dto.Nivel;
         tarefa.Status = dto.Status;
+        tarefa.Prioridade = dto.Prioridade;
+        tarefa.HoraInicio = dto.HoraInicio;
+        tarefa.HoraFim = dto.HoraFim;
         tarefa.ResponsavelId = dto.ResponsavelId;
         tarefa.AtualizadoEm = DateTime.UtcNow;
 
@@ -40,17 +43,6 @@ public class UpdateTarefaCommandHandler : IRequestHandler<UpdateTarefaCommand, T
             ? (await _usuarioRepository.GetByIdAsync(tarefa.ResponsavelId.Value))?.Nome
             : null;
 
-        return new TarefaResponse(
-            tarefa.Id,
-            tarefa.Titulo,
-            tarefa.Descricao,
-            tarefa.Nivel.ToString(),
-            tarefa.Status.ToString(),
-            tarefa.ProjetoId,
-            tarefa.ResponsavelId,
-            responsavelNome,
-            tarefa.CriadoEm,
-            tarefa.AtualizadoEm
-        );
+        return tarefa.ToResponse(responsavelNome);
     }
 }

@@ -37,3 +37,10 @@ public enum StatusTarefa
     Fazendo = 1,
     Concluida = 2
 }
+
+public enum PrioridadeTarefa
+{
+    Baixa = 0,
+    Media = 1,
+    Alta = 2
+}

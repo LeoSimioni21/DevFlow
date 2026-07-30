@@ -2,14 +2,19 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { API_BASE_URL } from '../config/api.config';
-import { Task, TaskStatus } from '../../shared/models/task.model';
+import { Task, TaskPriority, TaskStatus } from '../../shared/models/task.model';
 
 interface TarefaDto {
   id: number;
+  codigo: string;
   titulo: string;
   descricao: string | null;
   nivel: string;
   status: string;
+  prioridade: string;
+  horaInicio: string | null;
+  horaFim: string | null;
+  horasTrabalhadas: number | null;
   projetoId: number;
   responsavelId: number | null;
   responsavelNome: string | null;
@@ -22,6 +27,9 @@ export interface CreateTarefaPayload {
   descricao: string | null;
   nivel: number;
   status: number;
+  prioridade: number;
+  horaInicio: string | null;
+  horaFim: string | null;
   responsavelId: number | null;
 }
 
@@ -30,6 +38,9 @@ export interface UpdateTarefaPayload {
   descricao: string | null;
   nivel: number;
   status: number;
+  prioridade: number;
+  horaInicio: string | null;
+  horaFim: string | null;
   responsavelId: number | null;
 }
 
@@ -45,6 +56,18 @@ export const STATUS_TO_API: Record<TaskStatus, number> = {
   concluido: 2,
 };
 
+const PRIORITY_FROM_API: Record<string, TaskPriority> = {
+  Baixa: 'baixa',
+  Media: 'media',
+  Alta: 'alta',
+};
+
+export const PRIORITY_TO_API: Record<TaskPriority, number> = {
+  baixa: 0,
+  media: 1,
+  alta: 2,
+};
+
 function buildInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
   const first = parts[0]?.[0] ?? '';
@@ -56,10 +79,15 @@ function mapTarefa(dto: TarefaDto): Task {
   return {
     id: String(dto.id),
     projectId: String(dto.projetoId),
+    code: dto.codigo,
     title: dto.titulo,
     description: dto.descricao ?? '',
     assigneeInitials: dto.responsavelNome ? buildInitials(dto.responsavelNome) : '—',
     status: STATUS_FROM_API[dto.status] ?? 'analise',
+    priority: PRIORITY_FROM_API[dto.prioridade] ?? 'media',
+    startedAt: dto.horaInicio,
+    finishedAt: dto.horaFim,
+    hoursWorked: dto.horasTrabalhadas,
     createdAt: dto.criadoEm,
     updatedAt: dto.atualizadoEm,
   };
@@ -69,8 +97,11 @@ function mapTarefa(dto: TarefaDto): Task {
 export class TarefasService {
   private readonly http = inject(HttpClient);
 
-  listAll(): Observable<Task[]> {
-    return this.http.get<TarefaDto[]>(`${API_BASE_URL}/tarefas`).pipe(map((dtos) => dtos.map(mapTarefa)));
+  listAll(codigo?: string): Observable<Task[]> {
+    const url = codigo
+      ? `${API_BASE_URL}/tarefas?codigo=${encodeURIComponent(codigo)}`
+      : `${API_BASE_URL}/tarefas`;
+    return this.http.get<TarefaDto[]>(url).pipe(map((dtos) => dtos.map(mapTarefa)));
   }
 
   listByProjeto(projetoId: string): Observable<Task[]> {
