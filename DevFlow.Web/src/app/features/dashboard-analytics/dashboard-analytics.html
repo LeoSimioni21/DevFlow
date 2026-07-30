@@ -1,8 +1,21 @@
 <div class="dashboard-analytics">
   <header class="dashboard-analytics__header">
     <h1>Dashboard</h1>
-    <p>Horas trabalhadas, prioridades e pontos críticos de todas as tarefas.</p>
+    <p>Demanda, entrega, capacidade e eficácia da equipe, por período.</p>
   </header>
+
+  <div class="panel filter-bar">
+    <label class="field">
+      <span class="field__label">De</span>
+      <input class="field__input" type="date" [ngModel]="dataInicio()" (ngModelChange)="dataInicio.set($event)" />
+    </label>
+    <label class="field">
+      <span class="field__label">Até</span>
+      <input class="field__input" type="date" [ngModel]="dataFim()" (ngModelChange)="dataFim.set($event)" />
+    </label>
+    <button type="button" class="btn-primary" (click)="applyFilter()">Filtrar</button>
+    <button type="button" class="btn-primary" (click)="clearFilter()">Limpar</button>
+  </div>
 
   @if (errorMessage()) {
     <p class="panel__empty">{{ errorMessage() }}</p>
@@ -71,6 +84,41 @@
         }
       </article>
     </section>
+
+    <article class="panel">
+      <h2 class="panel__title">Desempenho por funcionário</h2>
+      <p class="panel__subtitle">Demanda = tarefas criadas no período · Entrega = tarefas concluídas no período · Capacidade = horas trabalhadas registradas no período · Eficácia = entrega / demanda.</p>
+      @if (desempenho().length) {
+        <div class="table-scroll">
+          <table class="performance-table">
+            <thead>
+              <tr>
+                <th>Funcionário</th>
+                <th>Demanda</th>
+                <th>Entrega</th>
+                <th>Capacidade</th>
+                <th>Eficácia</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of desempenho(); track item.usuarioId) {
+                <tr>
+                  <td>{{ item.nome }}</td>
+                  <td>{{ item.demanda }}</td>
+                  <td>{{ item.entrega }}</td>
+                  <td>{{ item.capacidadeHoras | number: '1.1-1' }}h</td>
+                  <td>
+                    <span class="badge" [class]="item.eficaciaClassName">{{ item.eficaciaPercentual | number: '1.0-0' }}%</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="panel__empty">Nenhuma tarefa atribuída a funcionários ainda.</p>
+      }
+    </article>
 
     <article class="panel">
       <h2 class="panel__title">Pontos críticos</h2>

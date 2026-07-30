@@ -18,6 +18,15 @@ export interface PontoCritico {
   projetoNome: string | null;
 }
 
+export interface DesempenhoFuncionario {
+  usuarioId: number;
+  nome: string;
+  demanda: number;
+  entrega: number;
+  capacidadeHoras: number;
+  eficaciaPercentual: number;
+}
+
 export interface DashboardData {
   totalTarefas: number;
   totalHorasTrabalhadas: number;
@@ -25,13 +34,27 @@ export interface DashboardData {
   porStatus: DashboardPercentualItem[];
   porPrioridade: DashboardPercentualItem[];
   pontosCriticos: PontoCritico[];
+  desempenho: DesempenhoFuncionario[];
+}
+
+export interface DashboardFilter {
+  dataInicio: string | null;
+  dataFim: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
   private readonly http = inject(HttpClient);
 
-  get(): Observable<DashboardData> {
-    return this.http.get<DashboardData>(`${API_BASE_URL}/dashboard`);
+  get(filter?: DashboardFilter): Observable<DashboardData> {
+    const params: string[] = [];
+    if (filter?.dataInicio) {
+      params.push(`dataInicio=${encodeURIComponent(filter.dataInicio)}`);
+    }
+    if (filter?.dataFim) {
+      params.push(`dataFim=${encodeURIComponent(filter.dataFim)}`);
+    }
+    const query = params.length ? `?${params.join('&')}` : '';
+    return this.http.get<DashboardData>(`${API_BASE_URL}/dashboard${query}`);
   }
 }

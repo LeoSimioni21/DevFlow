@@ -1,5 +1,6 @@
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DashboardData, DashboardService } from '../../core/data/dashboard.service';
 import { BreadcrumbService } from '../../core/layout/breadcrumb.service';
@@ -27,9 +28,15 @@ const PONTO_CRITICO_LABEL: Record<string, string> = {
   ProjetoCritico: 'Projeto crítico',
 };
 
+function eficaciaClassName(percentual: number): string {
+  if (percentual >= 80) return 'success';
+  if (percentual >= 50) return 'warning';
+  return 'danger';
+}
+
 @Component({
   selector: 'app-dashboard-analytics',
-  imports: [RouterLink, DecimalPipe],
+  imports: [RouterLink, DecimalPipe, FormsModule],
   templateUrl: './dashboard-analytics.html',
   styleUrl: './dashboard-analytics.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,6 +48,9 @@ export class DashboardAnalytics {
   protected readonly isLoading = signal(true);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly data = signal<DashboardData | null>(null);
+
+  protected readonly dataInicio = signal('');
+  protected readonly dataFim = signal('');
 
   protected readonly statusItems = computed(() =>
     (this.data()?.porStatus ?? []).map((item) => ({
@@ -63,18 +73,43 @@ export class DashboardAnalytics {
     })),
   );
 
+  protected readonly desempenho = computed(() =>
+    (this.data()?.desempenho ?? []).map((item) => ({
+      ...item,
+      eficaciaClassName: eficaciaClassName(item.eficaciaPercentual),
+    })),
+  );
+
   constructor() {
     this.breadcrumbService.set([{ label: 'Início', link: '/projects' }, { label: 'Dashboard' }]);
+    this.loadDashboard();
+  }
 
-    this.dashboardService.get().subscribe({
-      next: (data) => {
-        this.data.set(data);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.isLoading.set(false);
-        this.errorMessage.set('Não foi possível carregar o dashboard.');
-      },
-    });
+  protected applyFilter(): void {
+    this.loadDashboard();
+  }
+
+  protected clearFilter(): void {
+    this.dataInicio.set('');
+    this.dataFim.set('');
+    this.loadDashboard();
+  }
+
+  private loadDashboard(): void {
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+
+    this.dashboardService
+      .get({ dataInicio: this.dataInicio() || null, dataFim: this.dataFim() || null })
+      .subscribe({
+        next: (data) => {
+          this.data.set(data);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
+          this.errorMessage.set('Não foi possível carregar o dashboard.');
+        },
+      });
   }
 }

@@ -3,4 +3,4 @@ using MediatR;
 
 namespace DevFlow.Application.Dashboard.Queries;
 
-public record GetDashboardQuery : IRequest<DashboardResponse>;
+public record GetDashboardQuery(DateTime? DataInicio, DateTime? DataFim) : IRequest<DashboardResponse>;

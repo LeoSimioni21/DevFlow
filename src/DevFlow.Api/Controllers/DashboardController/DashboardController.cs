@@ -17,9 +17,9 @@ public class DashboardController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<DashboardResponse>> Get()
+    public async Task<ActionResult<DashboardResponse>> Get([FromQuery] DateTime? dataInicio, [FromQuery] DateTime? dataFim)
     {
-        var dashboard = await _mediator.Send(new GetDashboardQuery());
+        var dashboard = await _mediator.Send(new GetDashboardQuery(dataInicio, dataFim));
         return Ok(dashboard);
     }
 }

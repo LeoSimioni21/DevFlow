@@ -11,11 +11,21 @@ public record PontoCriticoResponse(
     string? ProjetoNome
 );
 
+public record DesempenhoFuncionarioResponse(
+    int UsuarioId,
+    string Nome,
+    int Demanda,
+    int Entrega,
+    double CapacidadeHoras,
+    double EficaciaPercentual
+);
+
 public record DashboardResponse(
     int TotalTarefas,
     double TotalHorasTrabalhadas,
     double MediaHorasPorTarefa,
     List<DashboardPercentualItem> PorStatus,
     List<DashboardPercentualItem> PorPrioridade,
-    List<PontoCriticoResponse> PontosCriticos
+    List<PontoCriticoResponse> PontosCriticos,
+    List<DesempenhoFuncionarioResponse> Desempenho
 );
